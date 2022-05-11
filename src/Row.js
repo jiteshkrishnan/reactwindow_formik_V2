@@ -1,6 +1,6 @@
 import { areEqual } from "react-window";
 import { useEffect, memo, useCallback, useState } from "react";
-import { useSetRecoilState } from "recoil";
+import { useSetRecoilState, useRecoilCallback } from "recoil";
 import isEqual from "lodash/isEqual";
 import UserForm from "./UserForm";
 import { deepDiffBetweenObjects } from "./diff";
@@ -8,8 +8,25 @@ import { modifiedItems } from "./atoms";
 
 export const Row = memo(({ index, style, data }) => {
   const item = data[index];
+
   const updateModifiedItems = useSetRecoilState(modifiedItems);
-  const [modifiedRow, setModifiedRow] = useState({ ...item });
+
+  const getModifiedRowItem = useRecoilCallback(({ snapshot }) => async () => {
+    const modifiedRows = await snapshot.getPromise(modifiedItems);
+    return modifiedRows[
+      `${item.id.name}_${item.id.value.replace(/[ ]+/g, "")}`
+    ];
+  });
+
+  const [modifiedRow, setModifiedRow] = useState({
+    ...item
+  });
+
+  useEffect(() => {
+    getModifiedRowItem().then((row) =>
+      setModifiedRow((currentRow) => ({ ...currentRow, ...row }))
+    );
+  }, []);
 
   useEffect(() => {
     if (!isEqual(item, modifiedRow)) {
