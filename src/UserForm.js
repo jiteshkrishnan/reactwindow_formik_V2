@@ -5,17 +5,13 @@ import isEqual from "lodash/isEqual";
 const UserForm = (props) => {
   const {
     values,
-    touched,
-    errors,
     handleChange,
     handleBlur,
-    handleSubmit,
-    dirty,
     initialValues,
-    updateValues,
-    index
+    updateValues
   } = props;
-  console.log("props: ", props);
+  //  console.log("props: ", props);
+  //check if the form values are different from initialValues and then call the update handler
   useEffect(() => {
     if (!isEqual(values, initialValues)) {
       console.log("form has changed");
